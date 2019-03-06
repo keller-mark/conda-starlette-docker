@@ -1,11 +1,11 @@
 
 # conda-starlette-docker
 
-[**Docker**](https://www.docker.com/) image with [**Uvicorn**](https://www.uvicorn.org/) managed by [**Gunicorn**](https://gunicorn.org/) for high-performance web applications in **[Python](https://www.python.org/) 3.7** via conda.
+[**Docker**](https://www.docker.com/) image with [**Uvicorn**](https://www.uvicorn.org/) managed by [**Gunicorn**](https://gunicorn.org/) for high-performance [**Starlette**](https://www.starlette.io/) web applications in **[Python](https://www.python.org/) 3.7** via [**conda**](https://hub.docker.com/r/continuumio/miniconda3).
 
 **GitHub repo**: <https://github.com/keller-mark/conda-starlette-docker>
 
-**Docker Hub image**: <https://hub.docker.com/r/keller-mark/conda-starlette/>
+**Docker Hub image**: <https://hub.docker.com/r/mkeller7/conda-starlette/>
 
 
 ## Description
@@ -49,7 +49,7 @@ There is also an Alpine version. If you want it, use one of the Alpine tags from
 * You don't need to clone the GitHub repo. You can use this image as a base image for other images, using this in your `Dockerfile`:
 
 ```Dockerfile
-FROM keller-mark/conda-starlette:python3.7
+FROM mkeller7/conda-starlette:python3.7
 
 COPY ./app /app
 ```
@@ -72,7 +72,7 @@ docker build -t myimage ./
 * Create a `Dockerfile` with:
 
 ```Dockerfile
-FROM keller-mark/conda-starlette:python3.7
+FROM mkeller7/conda-starlette:python3.7
 
 COPY ./app /app
 ```
