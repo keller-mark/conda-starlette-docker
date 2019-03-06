@@ -1,10 +1,12 @@
-FROM python:3.7-alpine3.8
+FROM continuumio/miniconda3
 
-LABEL maintainer="Sebastian Ramirez <tiangolo@gmail.com>"
+RUN conda create -n env python=3.7
+RUN echo "source activate env" > ~/.bashrc
+ENV PATH /opt/conda/envs/env/bin:$PATH
 
-RUN apk add --no-cache --virtual .build-deps gcc libc-dev make \
-    && pip install uvicorn gunicorn \
-    && apk del .build-deps gcc libc-dev make
+RUN conda install -y -c conda-forge uvicorn 
+RUN conda install -y -c anaconda gunicorn
+RUN conda install -y -c conda-forge starlette
 
 COPY ./start.sh /start.sh
 RUN chmod +x /start.sh
@@ -21,3 +23,6 @@ EXPOSE 80
 # Run the start script, it will check for an /app/prestart.sh script (e.g. for migrations)
 # And then will start Gunicorn with Uvicorn
 CMD ["/start.sh"]
+
+
+COPY ./app /app

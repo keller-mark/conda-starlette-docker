@@ -1,21 +1,11 @@
-[![Build Status](https://travis-ci.org/tiangolo/uvicorn-gunicorn-docker.svg?branch=master)](https://travis-ci.org/tiangolo/uvicorn-gunicorn-docker)
 
+# conda-starlette-docker
 
-## Supported tags and respective `Dockerfile` links
+[**Docker**](https://www.docker.com/) image with [**Uvicorn**](https://www.uvicorn.org/) managed by [**Gunicorn**](https://gunicorn.org/) for high-performance web applications in **[Python](https://www.python.org/) 3.7** via conda.
 
-* [`python3.7`, `latest` _(Dockerfile)_](https://github.com/tiangolo/uvicorn-gunicorn-docker/blob/master/python3.7/Dockerfile)
-* [`python3.6` _(Dockerfile)_](https://github.com/tiangolo/uvicorn-gunicorn-docker/blob/master/python3.6/Dockerfile)
-* [`python3.6-alpine3.8` _(Dockerfile)_](https://github.com/tiangolo/uvicorn-gunicorn-docker/blob/master/python3.6-alpine3.8/Dockerfile)
-* [`python3.7-alpine3.8` _(Dockerfile)_](https://github.com/tiangolo/uvicorn-gunicorn-docker/blob/master/python3.7-alpine3.8/Dockerfile)
+**GitHub repo**: <https://github.com/keller-mark/conda-starlette-docker>
 
-
-# uvicorn-gunicorn
-
-[**Docker**](https://www.docker.com/) image with [**Uvicorn**](https://www.uvicorn.org/) managed by [**Gunicorn**](https://gunicorn.org/) for high-performance web applications in **[Python](https://www.python.org/) 3.7** and **3.6** with performance auto-tuning. Optionally with Alpine Linux.
-
-**GitHub repo**: <https://github.com/tiangolo/uvicorn-gunicorn-docker>
-
-**Docker Hub image**: <https://hub.docker.com/r/tiangolo/uvicorn-gunicorn/>
+**Docker Hub image**: <https://hub.docker.com/r/keller-mark/conda-starlette/>
 
 
 ## Description
@@ -44,7 +34,7 @@ You can use **Gunicorn** to manage Uvicorn and run multiple of these concurrent 
 That way, you get the best of concurrency and parallelism.
 
 
-### `tiangolo/uvicorn-gunicorn`
+### `uvicorn-gunicorn`
 
 This image will set a sensible configuration based on the server it is running on (the amount of CPU cores available) without making sacrifices.
 
@@ -53,30 +43,13 @@ It has sensible defaults, but you can configure it with environment variables or
 There is also an Alpine version. If you want it, use one of the Alpine tags from above.
 
 
-### Frameworks
-
-This image was created to be the base image for:
-
-* [**tiangolo/uvicorn-gunicorn-starlette**](https://github.com/tiangolo/uvicorn-gunicorn-starlette-docker)
-* [**tiangolo/uvicorn-gunicorn-fastapi**](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker)
-
-But could be used as the base image to run any Python web application that uses the ASGI specification.
-
-If you are creating a new [**Starlette**](https://www.starlette.io/) web application you should use [**tiangolo/uvicorn-gunicorn-starlette**](https://github.com/tiangolo/uvicorn-gunicorn-starlette-docker) instead.
-
-If you are creating a new [**FastAPI**](https://fastapi.tiangolo.com/) web application you should use [**tiangolo/uvicorn-gunicorn-fastapi**](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker) instead.
-
-**Note**: FastAPI is based on Starlette and adds several features on top of it. Useful for APIs and other cases: data validation, data conversion, documentation with OpenAPI, dependency injection, security/authentication and others.
-
-**Note**: Unless you are doing something more technically advanced, you probably should be using [**Starlette**](https://www.starlette.io/) with [**tiangolo/uvicorn-gunicorn-starlette**](https://github.com/tiangolo/uvicorn-gunicorn-starlette-docker) or [**FastAPI**](https://fastapi.tiangolo.com/) with [**tiangolo/uvicorn-gunicorn-fastapi**](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker).
-
 
 ## How to use
 
 * You don't need to clone the GitHub repo. You can use this image as a base image for other images, using this in your `Dockerfile`:
 
 ```Dockerfile
-FROM tiangolo/uvicorn-gunicorn:python3.7
+FROM keller-mark/conda-starlette:python3.7
 
 COPY ./app /app
 ```
@@ -85,12 +58,70 @@ It will expect a file at `/app/app/main.py`.
 
 Or otherwise a file at `/app/main.py`.
 
-And will expect it to contain a variable `app` with your "ASGI" application.
+And will expect it to contain a variable `app` with your Starlette application.
 
 Then you can build your image from the directory that has your `Dockerfile`, e.g:
 
 ```bash
 docker build -t myimage ./
+```
+
+## Quick Start
+
+* Go to your project directory.
+* Create a `Dockerfile` with:
+
+```Dockerfile
+FROM keller-mark/conda-starlette:python3.7
+
+COPY ./app /app
+```
+
+* Create an `app` directory and enter in it.
+* Create a `main.py` file with:
+
+```Python
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+
+app = Starlette()
+
+
+@app.route("/")
+async def homepage(request):
+    return JSONResponse({"message": "Hello World!"})
+```
+
+* You should now have a directory structure like:
+
+```
+.
+├── app
+│   └── main.py
+└── Dockerfile
+```
+
+* Go to the project directory (in where your `Dockerfile` is, containing your `app` directory).
+* Build your Starlette image:
+
+```bash
+docker build -t myimage .
+```
+
+* Run a container based on your image:
+
+```bash
+docker run -d --name mycontainer -p 80:80 myimage
+```
+
+Now you have an optimized Starlette server in a Docker container. Auto-tuned for your current server (and number of CPU cores).
+
+You should be able to check it in your Docker container's URL, for example: http://192.168.99.100/ or http://127.0.0.1/ (or equivalent, using your Docker host).
+
+You will see something like:
+
+```JSON
+{"message": "Hello World!"}
 ```
 
 ## Advanced usage
@@ -118,7 +149,7 @@ docker run -d -p 80:80 -e MODULE_NAME="custom_app.custom_main" myimage
 
 #### `VARIABLE_NAME`
 
-The variable inside of the Python module that contains the ASGI application.
+The variable inside of the Python module that contains the Starlette application.
 
 By default:
 
@@ -127,16 +158,18 @@ By default:
 For example, if your main Python file has something like:
 
 ```Python
-from fastapi import FastAPI
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
 
-api = FastAPI()
+api = Starlette()
 
-@api.get("/")
-def read_root():
-    return {"message": "Hello world!"}
+
+@api.route("/")
+async def homepage(request):
+    return JSONResponse({"message": "Hello World!"})
 ```
 
-In this case `api` would be the variable with the "ASGI application". You could set it like:
+In this case `api` would be the variable with the Starlette application. You could set it like:
 
 ```bash
 docker run -d -p 80:80 -e VARIABLE_NAME="api" myimage
@@ -196,7 +229,7 @@ If you used the value `3` in a server with 2 CPU cores, it would run 6 worker pr
 
 You can use floating point values too.
 
-So, for example, if you have a big server (let's say, with 8 CPU cores) running several applications, and you have an ASGI application that you know won't need high performance. And you don't want to waste server resources. You could make it use `0.5` workers per CPU core. For example:
+So, for example, if you have a big server (let's say, with 8 CPU cores) running several applications, and you have a Starlette application that you know won't need high performance. And you don't want to waste server resources. You could make it use `0.5` workers per CPU core. For example:
 
 ```bash
 docker run -d -p 80:80 -e WORKERS_PER_CORE="0.5" myimage
@@ -294,6 +327,7 @@ You can set it like:
 docker run -d -p 80:8080 -e LOG_LEVEL="warning" myimage
 ```
 
+
 ### Custom Gunicorn configuration file
 
 The image includes a default Gunicorn Python config file at `/gunicorn_conf.py`.
@@ -333,32 +367,3 @@ If you need to run a Python script before starting the app, you could make the `
 python /app/my_custom_prestart_script.py
 ```
 
-
-## Tests
-
-All the image tags, configurations, environment variables and application options are tested.
-
-
-## Release Notes
-
-### 0.3.0
-
-* Set `WORKERS_PER_CORE` by default to `1`, as it shows to have the best performance on benchmarks.
-* Make the default web concurrency, when `WEB_CONCURRENCY` is not set, to a minimum of 2 workers. This is to avoid bad performance and blocking applications (server application) on small machines (server machine/cloud/etc). This can be overridden using `WEB_CONCURRENCY`. This applies for example in the case where `WORKERS_PER_CORE` is set to `1` (the default) and the server has only 1 CPU core. PR <a href="https://github.com/tiangolo/uvicorn-gunicorn-docker/pull/5" target="_blank">#5</a>.
-
-### 0.2.0
-
-* Make `/start.sh` run independently, reading and generating used default environment variables. And remove `/entrypoint.sh` as it doesn't modify anything in the system, only reads environment variables. PR <a href="https://github.com/tiangolo/uvicorn-gunicorn-docker/pull/4" target="_blank">#4</a>.
-
-### 0.1.2
-
-* Whenever this image is built (and each of its tags/versions), trigger a build for the children images (<a href="https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker" target="_blank">FastAPI</a> and <a href="https://github.com/tiangolo/uvicorn-gunicorn-starlette-docker" target="_blank">Starlette</a>).
-
-### 0.1.0
-
-* Add support for `/app/prestart.sh`.
-
-
-## License
-
-This project is licensed under the terms of the MIT license.
