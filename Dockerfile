@@ -1,8 +1,15 @@
 FROM continuumio/miniconda3
 
-RUN conda create -n env python=3.7
-RUN echo "source activate env" > ~/.bashrc
-ENV PATH /opt/conda/envs/env/bin:$PATH
+ENV PATH /opt/conda/bin:$PATH
+
+RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc
+
+# Tini: https://github.com/krallin/tini
+ENV TINI_VERSION v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+ENTRYPOINT ["/tini", "--"]
 
 RUN conda install -y -c conda-forge uvicorn 
 RUN conda install -y -c anaconda gunicorn
