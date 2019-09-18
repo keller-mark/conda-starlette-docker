@@ -29,5 +29,18 @@ else
     echo "There is no script $PRE_START_PATH"
 fi
 
-# Start Gunicorn
-exec gunicorn -k uvicorn.workers.UvicornWorker -c "$GUNICORN_CONF" "$APP_MODULE"
+# Check if the live reload flag has been set.
+if [ -z "$RELOAD" ]; then
+    # RELOAD is unset or set to the empty string
+    # Start Gunicorn
+    exec gunicorn -k uvicorn.workers.UvicornWorker -c "$GUNICORN_CONF" "$APP_MODULE"
+else
+    # RELOAD is set and not the empty string
+    HOST=${HOST:-0.0.0.0}
+    PORT=${PORT:-80}
+    LOG_LEVEL=${LOG_LEVEL:-info}
+    # Start Uvicorn with live reload
+    exec uvicorn --reload --host $HOST --port $PORT --log-level $LOG_LEVEL "$APP_MODULE"
+fi
+
+
